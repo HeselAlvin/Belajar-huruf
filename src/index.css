@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fredoka", sans-serif;
+  --font-body: "Nunito", sans-serif;
+  --color-ink: #3D2314;
+  --color-cream: #FFF8EE;
+  --color-sky-soft: #E3F4FF;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-cream);
+    margin: 0;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+.btn-storybook {
+  border: 3px solid #3D2314;
+  box-shadow: 0 6px 0 #3D2314;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-storybook:active,
+.btn-storybook-pressed {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #3D2314;
+}
+
+.letter-outline {
+  -webkit-text-stroke: 2.5px #3D2314;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #3D2314;
+}
