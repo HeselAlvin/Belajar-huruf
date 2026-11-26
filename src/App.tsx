@@ -4,6 +4,7 @@ import { StorybookBackdrop } from './components/layout/StorybookBackdrop';
 import { TopBar } from './components/layout/TopBar';
 import { HomePage } from './pages/HomePage';
 import { AlphabetPage } from './pages/AlphabetPage';
+import { MissingLetterPage } from './pages/MissingLetterPage';
 import { useAudioPlayer } from './hooks/useAudioPlayer';
 import type { MenuTarget } from './types/app';
 
@@ -11,8 +12,16 @@ export default function App() {
   const [activeMenu, setActiveMenu] = useState<MenuTarget | null>(null);
   const [isMuted, setIsMuted] = useState(false);
 
-  const { playPop, playLetter, playWord, playLetterThenWord, stopAll } =
-    useAudioPlayer(isMuted);
+  const {
+    playPop,
+    playCorrect,
+    playWrong,
+    speakText,
+    playLetter,
+    playWord,
+    playLetterThenWord,
+    stopAll,
+  } = useAudioPlayer(isMuted);
 
   const backToHome = () => {
     stopAll();
@@ -82,24 +91,13 @@ export default function App() {
             exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.25 }}
           >
-            <main className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center">
-              <div className="w-full rounded-[28px] border-[4px] border-[#3D2314] bg-white p-8 shadow-[0_8px_0_#3D2314]">
-                <div className="mb-3 text-6xl">🌸</div>
-                <h2 className="font-display text-3xl font-bold text-[#3D2314]">
-                  Lengkapi Huruf
-                </h2>
-                <p className="mt-2 font-bold text-[#3D2314]/70">
-                  Siap kita kerjakan lanjutannya setelah halaman Huruf A–Z aman!
-                </p>
-                <button
-                  type="button"
-                  onClick={backToHome}
-                  className="btn-storybook mt-6 cursor-pointer rounded-2xl bg-[#FFD166] px-6 py-3 font-display text-lg font-bold text-[#3D2314]"
-                >
-                  Balik ke Menu Utama
-                </button>
-              </div>
-            </main>
+            <MissingLetterPage
+              onPlayPop={playPop}
+              onPlayCorrect={playCorrect}
+              onPlayWrong={playWrong}
+              onSpeakText={speakText}
+              onStopAudio={stopAll}
+            />
           </motion.div>
         )}
       </AnimatePresence>
