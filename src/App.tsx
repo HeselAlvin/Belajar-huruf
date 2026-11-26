@@ -61,6 +61,8 @@ export default function App() {
             <HomePage
               onSelectMenu={(target) => setActiveMenu(target)}
               onPlayPop={playPop}
+              onSpeakText={speakText}
+              onStopAudio={stopAll}
             />
           </motion.div>
         )}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { MascotPointer } from '../components/home/MascotPointer';
 import { MenuTile } from '../components/home/MenuTile';
 import type { MenuTarget } from '../types/app';
@@ -7,21 +7,55 @@ import type { MenuTarget } from '../types/app';
 interface HomePageProps {
   onSelectMenu: (target: MenuTarget) => void;
   onPlayPop: (pitch?: number) => void;
+  onSpeakText: (text: string) => void;
+  onStopAudio: () => void;
 }
 
-export function HomePage({ onSelectMenu, onPlayPop }: HomePageProps) {
+export function HomePage({
+  onSelectMenu,
+  onPlayPop,
+  onSpeakText,
+  onStopAudio,
+}: HomePageProps) {
   const [selectedTarget, setSelectedTarget] = useState<MenuTarget | null>(null);
   const [phase, setPhase] = useState<'idle' | 'moving' | 'tapping'>('idle');
+  const [isGreeting, setIsGreeting] = useState(false);
   const timersRef = useRef<number[]>([]);
+  const greetTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
       timersRef.current.forEach((id) => window.clearTimeout(id));
+      if (greetTimerRef.current) {
+        window.clearTimeout(greetTimerRef.current);
+      }
     };
   }, []);
 
+  const handleMascotClick = () => {
+    if (phase !== 'idle') return;
+
+    onPlayPop(600);
+    onSpeakText('Halo, aku Deko, detektif kosakata!');
+    setIsGreeting(true);
+
+    if (greetTimerRef.current) {
+      window.clearTimeout(greetTimerRef.current);
+    }
+    greetTimerRef.current = window.setTimeout(() => {
+      setIsGreeting(false);
+    }, 3500);
+  };
+
   const handleMenuClick = (target: MenuTarget) => {
     if (phase !== 'idle') return;
+
+    if (greetTimerRef.current) {
+      window.clearTimeout(greetTimerRef.current);
+      greetTimerRef.current = null;
+    }
+    setIsGreeting(false);
+    onStopAudio();
 
     // Bunyi klik instan saat box disentuh
     onPlayPop(440);
@@ -86,10 +120,44 @@ export function HomePage({ onSelectMenu, onPlayPop }: HomePageProps) {
           }
         />
 
-        {/* Maskot Tengah */}
-        <div className="my-1 shrink-0 md:my-0">
+        {/* Maskot Tengah (Klik untuk sapaan Deko) */}
+        <motion.div
+          role="button"
+          tabIndex={0}
+          onClick={handleMascotClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleMascotClick();
+            }
+          }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.94 }}
+          animate={
+            isGreeting
+              ? { y: [0, -10, 0, -6, 0], rotate: [0, -3, 3, -2, 0] }
+              : { y: 0, rotate: 0 }
+          }
+          transition={{ duration: 0.55 }}
+          aria-label="Klik Deko untuk mendengar perkenalan"
+          title="Klik aku!"
+          className="relative my-1 shrink-0 cursor-pointer select-none focus:outline-none md:my-0"
+        >
           <MascotPointer target={selectedTarget} phase={phase} />
-        </div>
+
+          <AnimatePresence>
+            {isGreeting && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.85 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.9 }}
+                className="pointer-events-none absolute -bottom-3 left-1/2 z-20 w-max max-w-[260px] -translate-x-1/2 rounded-2xl border-[3px] border-[#3D2314] bg-[#FFD166] px-3.5 py-1.5 text-center font-display text-xs font-bold text-[#3D2314] shadow-[0_3px_0_#3D2314] sm:text-sm"
+              >
+                Halo! Aku Deko, Detektif Kosakata! 🔍
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Menu 2: Lengkapi Huruf */}
         <MenuTile
